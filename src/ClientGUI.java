@@ -1,65 +1,116 @@
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.util.ArrayList;
 import java.util.List;
 
-
-public class ClientGUI {
-
+public class ClientGUI extends JFrame {
     private Server server;
-    private JFrame frame;
-    private JPanel mainPanel;
-    private JTextField studentIdField;
-    private JComboBox<String>[] destinationComboBoxes;
 
-    public ClientGUI(Server server) {
-        this.server = server;
-        createGUI();
+    // GUI Components
+    private JPanel inputPanel;
+    private JTextField studentIdField;
+    private JComboBox<String>[] preferenceComboBoxes;
+    private JButton calculateButton;
+
+    public ClientGUI() {
+        super("Student Assignment Optimizer");
+        server = new Server();
+
+        initializeGUI();
     }
 
-    private void createGUI() {
-        frame = new JFrame("Student Assignment System");
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+    private void initializeGUI() {
+        // Setup input panel
+        inputPanel = new JPanel();
+        inputPanel.setLayout(new GridLayout(7, 2)); // 7 rows: 1 student ID + 5 preferences + 1 button
+        setupInputComponents();
 
-        mainPanel = new JPanel();
-        mainPanel.setLayout(new GridLayout(12, 2));
+        // Setup button
+        calculateButton = new JButton("Calculate Assignments");
+        calculateButton.addActionListener(e -> calculateAssignments());
 
-        JLabel studentIdLabel = new JLabel("Enter Student ID:");
+        // Add panels, button to the frame
+        add(inputPanel, BorderLayout.NORTH);
+        add(calculateButton, BorderLayout.CENTER);
+    }
+
+    private void setupInputComponents() {
+        // Add student ID field
+        JLabel studentIdLabel = new JLabel("Student ID:");
+        inputPanel.add(studentIdLabel);
         studentIdField = new JTextField();
-        mainPanel.add(studentIdLabel);
-        mainPanel.add(studentIdField);
+        inputPanel.add(studentIdField);
 
-        destinationComboBoxes = new JComboBox[5];
+        // Add preference dropdown lists
+        preferenceComboBoxes = new JComboBox[5];
         for (int i = 0; i < 5; i++) {
-            JLabel destinationLabel = new JLabel("Choose " + (i + 1) + " university:");
-            destinationComboBoxes[i] = new JComboBox<>(Destination.UNIVERSITY_LIST.toArray(new String[0]));
+            JLabel preferenceLabel = new JLabel("Preference " + (i + 1) + ":");
+            inputPanel.add(preferenceLabel);
 
-            mainPanel.add(destinationLabel);
-            mainPanel.add(destinationComboBoxes[i]);
+            preferenceComboBoxes[i] = new JComboBox<>();
+            for (Destination destination : server.getDestinations()) {
+                preferenceComboBoxes[i].addItem(destination.getName());
+            }
+            inputPanel.add(preferenceComboBoxes[i]);
+        }
+    }
+
+    private void calculateAssignments() {
+        // Get student ID from the field
+        int studentId;
+        try {
+            studentId = Integer.parseInt(studentIdField.getText());
+        } catch (NumberFormatException ex) {
+            JOptionPane.showMessageDialog(this, "Please enter a valid student ID.", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
         }
 
-        JButton submitButton = new JButton("Submit");
-        submitButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                int studentId = Integer.parseInt(studentIdField.getText());
-                String preferences = "";
-                for (int i = 0; i < 5; i++) {
-                    preferences += destinationComboBoxes[i].getSelectedItem() + ",";
+        // Gather preferences for the student
+        List<Preference> preferences = new ArrayList<>();
+        for (JComboBox<String> comboBox : preferenceComboBoxes) {
+            String selectedDestination = (String) comboBox.getSelectedItem();
+            if (selectedDestination != null) {
+                Destination destination = server.findDestinationByName(selectedDestination);
+                if (destination != null) {
+                    preferences.add(new Preference(new Student(studentId, ""), destination, 0)); // Rank not used in this context
                 }
-                preferences = preferences.substring(0, preferences.length() - 1); // Remove the trailing comma
-
-                server.handleStudentPreferences(studentId, preferences, null); // Modify parameters as needed
             }
-        });
+        }
 
-        mainPanel.add(submitButton);
-
-        frame.getContentPane().add(mainPanel);
-        frame.pack();
-        frame.setVisible(true);
+        // Calculate assignments based on preferences
+        Assignment assignment = server.calculateAssignments(preferences);
+        if (assignment != null) {
+            displayAssignment(assignment);
+        } else {
+            JOptionPane.showMessageDialog(this, "Error calculating assignments!", "Error", JOptionPane.ERROR_MESSAGE);
+        }
     }
 
-    // Add other methods as needed
+    private void displayAssignment(Assignment assignment) {
+        StringBuilder resultText = new StringBuilder("Assignments:\n");
+        boolean foundAssignment = false;
+    
+        for (Student student : server.getStudents()) {
+            Destination assignedDestination = assignment.getDestination(student);
+            if (assignedDestination != null) {
+                resultText.append(student.getName()).append(" is assigned to ").append(assignedDestination.getName()).append("\n");
+                foundAssignment = true;
+            }
+        }
+    
+        if (!foundAssignment) {
+            resultText.append("No assignments found for the submitted preferences.");
+        }
+    
+        JOptionPane.showMessageDialog(this, resultText.toString(), "Assignment Result", JOptionPane.INFORMATION_MESSAGE);
+    }
+    
+
+    public static void main(String[] args) {
+        ClientGUI clientGUI = new ClientGUI();
+        clientGUI.setSize(400, 300);
+        clientGUI.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        clientGUI.setVisible(true);
+    }
 }
+
