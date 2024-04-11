@@ -1,37 +1,38 @@
+import java.util.ArrayList;
 import java.util.List;
 
 public class Student {
-    private int studentId;
-    private List<String> preferences;
-    private List<String> selectedDestinations;
-    private String assignedDestination;
+    private int id;
+    private String name;
+    private List<Preference> preferences;
 
-    public Student(int studentId, List<String> preferences) {
-        this.studentId = studentId;
-        this.preferences = preferences;
+    public Student(int id, String name) {
+        this.id = id;
+        this.name = name;
+        this.preferences = new ArrayList<>();
     }
 
-    public int getStudentId() {
-        return studentId;
+    public int getId() {
+        return id;
     }
 
-    public List<String> getPreferences() {
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public List<Preference> getPreferences() {
         return preferences;
     }
 
-    public List<String> getSelectedDestinations() {
-        return selectedDestinations;
-    }
-
-    public void setSelectedDestinations(List<String> selectedDestinations) {
-        this.selectedDestinations = selectedDestinations;
-    }
-
-    public String getAssignedDestination() {
-        return assignedDestination;
-    }
-
-    public void setAssignedDestination(String assignedDestination) {
-        this.assignedDestination = assignedDestination;
+    public void addPreference(Preference preference) {
+        this.preferences.add(preference);
     }
 }
