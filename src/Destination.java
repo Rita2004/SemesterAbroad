@@ -1,47 +1,37 @@
-import java.util.Arrays;
-import java.util.List;
-
 public class Destination {
-
-    public static final List<String> UNIVERSITY_LIST = Arrays.asList(
-            "University of Edinburgh",
-            "Peking University",
-            "University of Zurich",
-            "University of California, Los Angeles (UCLA)",
-            "Sorbonne University (Paris)",
-            "University of Hong Kong",
-            "University of Sydney",
-            "Kyoto University",
-            "London School of Economics and Political Science (LSE)",
-            "Carnegie Mellon University"
-    );
-
+    private int id; 
     private String name;
-    private int maxStudents;
-    private int availableSeats;
+    private int maxCapacity;
 
-    public Destination(String name, int maxStudents) {
+    // Constructor
+    public Destination(int id, String name, int maxCapacity) {
+        this.id = id;
         this.name = name;
-        this.maxStudents = maxStudents;
-        this.availableSeats = maxStudents;
+        this.maxCapacity = maxCapacity;
+    }
+
+    // Getters and Setters
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 
     public String getName() {
         return name;
     }
 
-    public int getMaxStudents() {
-        return maxStudents;
+    public void setName(String name) {
+        this.name = name;
     }
 
-    public int getAvailableSeats() {
-        return availableSeats;
+    public int getMaxCapacity() {
+        return maxCapacity;
     }
 
-    public void decreaseAvailableSeats() {
-        // Implement logic to decrease available seats when a student is assigned
-        if (availableSeats > 0) {
-            availableSeats--;
-        }
+    public void setMaxCapacity(int maxCapacity) {
+        this.maxCapacity = maxCapacity;
     }
 }
