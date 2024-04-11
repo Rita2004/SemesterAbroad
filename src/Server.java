@@ -1,29 +1,47 @@
+// Server.java
 import java.util.ArrayList;
 import java.util.List;
 
 public class Server {
-    private List<Destination> destinations;
     private List<Student> students;
+    private List<Destination> destinations;
 
-    public Server(List<Destination> destinations) {
-        this.destinations = destinations;
-        this.students = new ArrayList<>();
+    public Server() {
+        students = new ArrayList<>();
+        destinations = new ArrayList<>();
+
+        // Initialize your students and destinations here (Replace with your data)
+
+        // Create 10 destinations
+        for (int i = 1; i <= 10; i++) {
+            destinations.add(new Destination(i, "Destination" + i,  4));
+        }
+
+        // Create 40 students
+        for (int i = 1; i <= 40; i++) {
+            students.add(new Student(i, "Student" + i));
+        }
     }
 
-    public void run() {
-        // Implement server logic here
-        // This can include handling requests from clients, recalculating assignments, etc.
+
+    public Assignment calculateAssignments(List<Preference> preferences) {
+        return GeneticAlgorithm.calculate(preferences, students, destinations);
     }
 
-    public void handleStudentPreferences(int studentId, String preferences, List<String> selectedDestinations) {
-        List<String> preferencesList = List.of(preferences.split(","));
-        Student newStudent = new Student(studentId, preferencesList);
-        newStudent.setSelectedDestinations(selectedDestinations);
-        students.add(newStudent);
-        System.out.println("Student " + studentId + " preferences submitted: " + preferences + ", selected destinations: " + selectedDestinations);
-
-        // Implement logic to recalculate assignments and update GUI
+    public List<Student> getStudents() {
+        return students;
     }
 
-    // Add other methods as needed
+    public List<Destination> getDestinations() {
+        return destinations;
+    }
+
+    public Destination findDestinationByName(String name) {
+        for (Destination destination : destinations) {
+            if (destination.getName().equals(name)) {
+                return destination;
+            }
+        }
+        return null; // Return null if the destination is not found
+    }
 }
