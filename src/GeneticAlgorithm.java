@@ -3,90 +3,81 @@ import java.util.Collections;
 import java.util.List;
 
 public class GeneticAlgorithm {
+    private static final int POPULATION_SIZE = 100;
+    private static final double MUTATION_RATE = 0.1;
+    private static final int TOURNAMENT_SELECTION_SIZE = 5;
+    private static final int ELITE_SELECTION_SIZE = 1;
+    private static final int NUM_GENERATIONS = 100;
 
-    private List<Student> population;
-    private List<Destination> destinations;
+    public static Assignment calculate(List<Preference> preferences, List<Student> students, List<Destination> destinations) {
+        List<Assignment> population = initializePopulation(students, destinations);
+        for (int generation = 0; generation < NUM_GENERATIONS; generation++) {
+            population = evolvePopulation(population, preferences, students, destinations);
+        }
+        return Collections.max(population);
+    }
 
-    public List<Student> getPopulation() {
+    private static List<Assignment> initializePopulation(List<Student> students, List<Destination> destinations) {
+        List<Assignment> population = new ArrayList<>();
+        for (int i = 0; i < POPULATION_SIZE; i++) {
+            Assignment assignment = new Assignment();
+            for (Student student : students) {
+                Destination randomDestination = destinations.get((int) (Math.random() * destinations.size()));
+                assignment.addAssignment(student, randomDestination);
+            }
+            population.add(assignment);
+        }
         return population;
     }
 
-    public GeneticAlgorithm(List<Student> population, List<Destination> destinations) {
-        this.population = population;
-        this.destinations = destinations;
+    private static List<Assignment> evolvePopulation(List<Assignment> population, List<Preference> preferences, List<Student> students, List<Destination> destinations) {
+        List<Assignment> evolvedPopulation = new ArrayList<>();
+        Collections.sort(population);
+        for (int i = 0; i < ELITE_SELECTION_SIZE; i++) {
+            evolvedPopulation.add(population.get(i));
+        }
+        for (int i = ELITE_SELECTION_SIZE; i < POPULATION_SIZE; i++) {
+            Assignment parent1 = selectParent(population);
+            Assignment parent2 = selectParent(population);
+            Assignment offspring = crossover(parent1, parent2);
+            mutate(offspring, students, destinations, preferences);
+            evolvedPopulation.add(offspring);
+        }
+        return evolvedPopulation;
     }
 
-    public void evolve() {
-        for (int generation = 0; generation < 100; generation++) {
-            evaluateFitness();
-            List<Student> parents = selectParents();
-            List<Student> offspring = crossover(parents);
-            mutate(offspring);
-            population = offspring;
-            updateAssignments();
+    private static Assignment selectParent(List<Assignment> population) {
+        List<Assignment> tournamentSelection = new ArrayList<>();
+        for (int i = 0; i < TOURNAMENT_SELECTION_SIZE; i++) {
+            tournamentSelection.add(population.get((int) (Math.random() * population.size())));
         }
+        return Collections.max(tournamentSelection);
     }
 
-    private void evaluateFitness() {
-        for (Student student : population) {
-            // Implement your fitness evaluation logic here
+    private static Assignment crossover(Assignment parent1, Assignment parent2) {
+        Assignment offspring = new Assignment();
+        for (Student student : parent1.getStudentAssignments().keySet()) {
+            if (Math.random() < 0.5) {
+                offspring.addAssignment(student, parent1.getDestination(student));
+            } else {
+                offspring.addAssignment(student, parent2.getDestination(student));
+            }
         }
-    }
-
-    private List<Student> selectParents() {
-        List<Student> parents = new ArrayList<>();
-
-        for (int i = 0; i < population.size(); i++) {
-            int randomIndex1 = (int) (Math.random() * population.size());
-            int randomIndex2 = (int) (Math.random() * population.size());
-
-            Student candidate1 = population.get(randomIndex1);
-            Student candidate2 = population.get(randomIndex2);
-
-            // Select the fitter candidate
-            Student selectedParent = (Math.random() < 0.5) ? candidate1 : candidate2;
-            parents.add(selectedParent);
-        }
-
-        return parents;
-    }
-
-    private List<Student> crossover(List<Student> parents) {
-        List<Student> offspring = new ArrayList<>();
-
-        for (int i = 0; i < parents.size(); i += 2) {
-            int crossoverPoint = (int) (Math.random() * parents.get(i).getPreferences().size());
-
-            List<String> genes1 = new ArrayList<>(parents.get(i).getPreferences().subList(0, crossoverPoint));
-            genes1.addAll(parents.get(i + 1).getPreferences().subList(crossoverPoint, parents.get(i + 1).getPreferences().size()));
-
-            List<String> genes2 = new ArrayList<>(parents.get(i + 1).getPreferences().subList(0, crossoverPoint));
-            genes2.addAll(parents.get(i).getPreferences().subList(crossoverPoint, parents.get(i).getPreferences().size()));
-
-            offspring.add(new Student(-1, genes1));
-            offspring.add(new Student(-1, genes2));
-        }
-
         return offspring;
     }
 
-    private void mutate(List<Student> offspring) {
-        for (Student student : offspring) {
-            for (int i = 0; i < student.getPreferences().size(); i++) {
-                if (Math.random() < 0.1) {
-                    Collections.swap(student.getPreferences(), i, (int) (Math.random() * student.getPreferences().size()));
-                }
+    private static void mutate(Assignment assignment, List<Student> students, List<Destination> destinations, List<Preference> preferences) {
+        for (Student student : students) {
+            if (Math.random() < MUTATION_RATE) {
+                Destination randomDestination = destinations.get((int) (Math.random() * destinations.size()));
+                assignment.addAssignment(student, randomDestination);
             }
         }
     }
 
-    private void updateAssignments() {
-        for (Student student : population) {
-            List<String> preferences = student.getPreferences();
-            if (!preferences.isEmpty()) {
-                String assignedDestination = preferences.get(0);
-                student.setAssignedDestination(assignedDestination);
-            }
-        }
+    public static int calculateFitness(Assignment assignment) {
+        // Placeholder method for calculating fitness
+        // Implement your fitness calculation logic here
+        return 0;
     }
 }
