@@ -1,23 +1,19 @@
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Student {
-    private int id;
+public class Student implements Serializable {
     private String name;
-    private List<Preference> preferences;
+    private List<Destination> preferences;
+    private Destination assignedDest;
 
-    public Student(int id, String name) {
-        this.id = id;
+    public Student() {
+        preferences = new ArrayList<>();
+    }
+
+    public Student(String name) {
         this.name = name;
-        this.preferences = new ArrayList<>();
-    }
-
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
+        preferences = new ArrayList<>();
     }
 
     public String getName() {
@@ -28,11 +24,23 @@ public class Student {
         this.name = name;
     }
 
-    public List<Preference> getPreferences() {
+    public void addPreference(Destination destination) {
+        this.preferences.add(destination);
+    }
+
+    public List<Destination> getPreferences() {
         return preferences;
     }
 
-    public void addPreference(Preference preference) {
-        this.preferences.add(preference);
+    public void setPreferences(List<Destination> preferences) {
+        this.preferences = preferences;
+    }
+
+    public Destination getAssignedDest() {
+        return assignedDest;
+    }
+
+    public void setAssignedDest(Destination assignedDest) {
+        this.assignedDest = assignedDest;
     }
 }
