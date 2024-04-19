@@ -1,33 +1,33 @@
-import java.util.HashMap;
-import java.util.Map;
+public class Assignment {
+    private Student student;
+    private Destination destination;
+    private int cost;
 
-public class Assignment implements Comparable<Assignment> {
-    private Map<Student, Destination> studentAssignments;
-
-    public Assignment() {
-        this.studentAssignments = new HashMap<>();
+    public Assignment(Student student, Destination destination) {
+        this.student = student;
+        this.destination = destination;
+    }
+    public Student getStudent() {
+        return student;
     }
 
-    public Map<Student, Destination> getStudentAssignments() {
-        return studentAssignments;
+    public void setStudent(Student student) {
+        this.student = student;
     }
 
-    public void setStudentAssignments(Map<Student, Destination> studentAssignments) {
-        this.studentAssignments = studentAssignments;
+    public Destination getDestination() {
+        return destination;
     }
 
-    public void addAssignment(Student student, Destination destination) {
-        this.studentAssignments.put(student, destination);
+    public void setDestination(Destination destination) {
+        this.destination = destination;
     }
 
-    public Destination getDestination(Student student) {
-        return this.studentAssignments.get(student);
+    public int getCost() {
+        return cost;
     }
 
-    @Override
-    public int compareTo(Assignment other) {
-        int fitnessThis = GeneticAlgorithm.calculateFitness(this);
-        int fitnessOther = GeneticAlgorithm.calculateFitness(other);
-        return Integer.compare(fitnessThis, fitnessOther);
+    public void setCost(int cost) {
+        this.cost = cost;
     }
 }
